@@ -68,7 +68,7 @@ window.Map = React.createClass({
   },
   render: function() {
     return (
-      <div className="map" id='map'></div>
+      <div onClick={this.renderBenchForm} className="map" id='map'></div>
     );
   }
 });
