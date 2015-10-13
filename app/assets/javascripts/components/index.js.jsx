@@ -5,10 +5,10 @@ window.Index = React.createClass({
   updateBenches: function() {
     this.setState({ benches: BenchStore.all() });
   },
-  componentWillMount: function() {
+  componentDidMount: function() {
     BenchStore.addIndexChangeEventListener(this.updateBenches)
   },
-  componentDidUnmount: function() {
+  componentWillUnmount: function() {
     BenchStore.removeIndexChangeEventListener(this.updateBenches);
   },
   changeHover: function() {

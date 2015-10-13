@@ -8,12 +8,15 @@ window.BenchForm = React.createClass({
     seating: 0
   },
   getInitialState: function() {
-    return this.blankAttrs;
+    return { lat: parseFloat(this.props.location.query.lat),
+             lng: parseFloat(this.props.location.query.lng),
+             description: '',
+             seating: 0 };
   },
   formSubmit: function(e) {
     e.preventDefault();
     ApiUtil.createBench({bench: this.state});
-    this.setState(this.blankAttrs);
+    this.props.history.pushState(null, '');
   },
   render: function() {
     return (

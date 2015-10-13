@@ -1,11 +1,28 @@
 window.Map = React.createClass({
+  mixins: [ReactRouter.History],
   componentDidMount: function() {
-    var map = document.getElementById('map');
+    var map = React.findDOMNode(this.refs.map);
     var mapOptions = {
       center: {lat: 37.7758, lng: -122.435},
       zoom: 13
     };
+    if (this.props.bench) {
+      mapOptions = {
+        draggable: false,
+        center: { lat: this.props.bench.lat,
+                  lng: this.props.bench.lng },
+        zoom: 15
+      };
+    }
     this.map = new google.maps.Map(map, mapOptions);
+    if (this.props.bench) {
+      new google.maps.Marker({
+        map: this.map,
+        draggable: false,
+        animation: google.maps.Animation.DROP,
+        position: {lat: this.props.bench.lat, lng: this.props.bench.lng}
+      });
+    }
     this.map.addListener('idle', function() {
       var northEast = this.getBounds().getNorthEast();
       var southWest = this.getBounds().getSouthWest();
@@ -13,10 +30,17 @@ window.Map = React.createClass({
         'northEast':{'lat':northEast['lat'](), 'lng':northEast['lng']()},
         'southWest':{'lat':southWest['lat'](), 'lng':southWest['lng']()},
       };
-      ApiUtil.fetchBenches({bounds: bounds});
+      FilterActions.changeBounds(bounds);
     });
+    this.map.addListener('click', function(e) {
+      this.props.handleMapClick({lat: e.latLng.lat(), lng: e.latLng.lng()});
+    }.bind(this));
     BenchStore.addIndexChangeEventListener(this.updateMarkers);
     HoveredBenchStore.addHoveredBenchChangeEventListener(this.changeHover);
+  },
+  componentWillUnmount: function() {
+    BenchStore.removeIndexChangeEventListener(this.updateMarkers);
+    HoveredBenchStore.removeHoveredBenchChangeEventListener(this.changeHover);
   },
   getInitialState: function() {
     return { markedBenches: [] };
@@ -53,22 +77,26 @@ window.Map = React.createClass({
       animation: google.maps.Animation.DROP,
       position: {lat: inBoundBench.lat, lng: inBoundBench.lng}
     });
-    this.setState({ markedBenches: this.state.markedBenches.concat([newMarker])})
+    newMarker.addListener('click', function() {
+      var newUrl = 'benches/' + inBoundBench.id;
+      this.history.pushState(null, newUrl);
+    }.bind(this));
+    this.setState({ markedBenches: this.state.markedBenches.concat([newMarker])});
   },
   updateMarkers: function() {
-    this.clearMarkers();                // Set map to null for all markers
-    BenchStore.all().forEach(function(inBoundBench){
-      var existingMark = this.findMarker(inBoundBench);
+    this.clearMarkers();
+    BenchStore.all().forEach(function(filteredBench){
+      var existingMark = this.findMarker(filteredBench);
       if (existingMark) {                // If marker already in list
         existingMark.setMap(this.map);   // make marker visible again
       } else {                           // If first time seeing this marker
-        this.addNewMarker(inBoundBench); // Create new marker object, add to list
+        this.addNewMarker(filteredBench); // Create new marker object, add to list
       }
     }.bind(this));
   },
   render: function() {
     return (
-      <div onClick={this.renderBenchForm} className="map" id='map'></div>
+      <div className="map" ref='map'></div>
     );
   }
 });

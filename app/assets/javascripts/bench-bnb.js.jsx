@@ -1,5 +1,6 @@
 $(function () {
 
+  var root = document.getElementById('content');
   var Route = ReactRouter.Route;
   var Router = ReactRouter.Router;
   var IndexRoute = ReactRouter.IndexRoute;
@@ -18,13 +19,11 @@ $(function () {
   var routes = (
     <Route path="/" component={App}>
       <IndexRoute component={Search}/>
-      <Route path="/benches/new" component={BenchForm}/>
+      <Route path="benches/new" component={BenchForm}/>
+      <Route path="benches/:benchid" component={ShowPage}/>
     </Route>
   );
 
-  React.render(
-    <Router>{routes}</Router>,
-    document.getElementById('content')
-  );
+  React.render(<Router>{routes}</Router>, root);
 
 });

@@ -8,13 +8,19 @@
     BenchStore.emit(BENCH_INDEX_CHANGE_EVENT);
   };
 
-  var addBench = function(benches) {
-    _benches.push(BENCH_INDEX_CHANGE_EVENT);
+  var addBench = function(bench) {
+    _benches.push(bench);
+    BenchStore.emit(BENCH_INDEX_CHANGE_EVENT);
   };
 
   root.BenchStore = $.extend({}, EventEmitter.prototype, {
     all: function() {
       return _benches.slice();
+    },
+    findBenchById: function(id) {
+      return _benches.filter(function(bench){
+        return bench.id === parseInt(id);
+      })[0];
     },
     addIndexChangeEventListener: function(callback) {
       this.on(BENCH_INDEX_CHANGE_EVENT, callback);
@@ -22,7 +28,7 @@
     removeIndexChangeEventListener: function(callback) {
       this.removeListener(BENCH_INDEX_CHANGE_EVENT, callback);
     },
-    dispatcherID: AppDispatcher.register(function(payload) {
+    dispatcherId: AppDispatcher.register(function(payload) {
       switch (payload.actionType) {
         case BenchConstants.BENCHES_RECEIVED:
           resetBenches(payload.benches);
