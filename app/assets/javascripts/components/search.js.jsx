@@ -19,10 +19,13 @@ window.Search = React.createClass({
     return (
       <div className="page-container">
         <Map className="map" handleMapClick={this.handleMapClick}/>
-        <SeatingFilter className="seating-filter"
-                       max={this.state.filter_params.max_seating}
-                       min={this.state.filter_params.min_seating} />
-        <Index className="index"/>
+        <div className="selection-container">
+        <br/>
+          <SeatingFilter className="seating-filter"
+                         max={this.state.filter_params.max_seating}
+                         min={this.state.filter_params.min_seating} />
+          <Index className="index"/>
+        </div>
       </div>
     );
   }

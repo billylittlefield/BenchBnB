@@ -17,6 +17,7 @@ window.SeatingFilter = React.createClass({
                onChange={this.updateMin}
                type='number'
                step='1'/>
+        <br/>
         <label>Maximum Seats:</label>
         <input id='max'
                onChange={this.updateMax}

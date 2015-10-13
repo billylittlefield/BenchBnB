@@ -9,7 +9,7 @@ $(function () {
     render: function() {
       return (
         <div>
-          <header><h1>Bench BnB</h1></header>
+          <header class="site-header"><h1>Bench BnB</h1></header>
           {this.props.children}
         </div>
       );

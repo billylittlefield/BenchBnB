@@ -2,16 +2,17 @@ window.Map = React.createClass({
   mixins: [ReactRouter.History],
   componentDidMount: function() {
     var map = React.findDOMNode(this.refs.map);
-    var mapOptions = {
-      center: {lat: 37.7758, lng: -122.435},
-      zoom: 13
-    };
+    var mapOptions;
     if (this.props.bench) {
       mapOptions = {
         draggable: false,
-        center: { lat: this.props.bench.lat,
-                  lng: this.props.bench.lng },
+        center: { lat: this.props.bench.lat, lng: this.props.bench.lng },
         zoom: 15
+      };
+    } else {
+      mapOptions = {
+        center: {lat: 37.7758, lng: -122.435},
+        zoom: 13
       };
     }
     this.map = new google.maps.Map(map, mapOptions);
@@ -22,21 +23,22 @@ window.Map = React.createClass({
         animation: google.maps.Animation.DROP,
         position: {lat: this.props.bench.lat, lng: this.props.bench.lng}
       });
+    } else {
+      this.map.addListener('idle', function() {
+        var northEast = this.getBounds().getNorthEast();
+        var southWest = this.getBounds().getSouthWest();
+        var bounds = {
+          'northEast':{'lat':northEast['lat'](), 'lng':northEast['lng']()},
+          'southWest':{'lat':southWest['lat'](), 'lng':southWest['lng']()},
+        };
+        FilterActions.changeBounds(bounds);
+      });
+      this.map.addListener('click', function(e) {
+        this.props.handleMapClick({lat: e.latLng.lat(), lng: e.latLng.lng()});
+      }.bind(this));
+      BenchStore.addIndexChangeEventListener(this.updateMarkers);
+      HoveredBenchStore.addHoveredBenchChangeEventListener(this.changeHover);
     }
-    this.map.addListener('idle', function() {
-      var northEast = this.getBounds().getNorthEast();
-      var southWest = this.getBounds().getSouthWest();
-      var bounds = {
-        'northEast':{'lat':northEast['lat'](), 'lng':northEast['lng']()},
-        'southWest':{'lat':southWest['lat'](), 'lng':southWest['lng']()},
-      };
-      FilterActions.changeBounds(bounds);
-    });
-    this.map.addListener('click', function(e) {
-      this.props.handleMapClick({lat: e.latLng.lat(), lng: e.latLng.lng()});
-    }.bind(this));
-    BenchStore.addIndexChangeEventListener(this.updateMarkers);
-    HoveredBenchStore.addHoveredBenchChangeEventListener(this.changeHover);
   },
   componentWillUnmount: function() {
     BenchStore.removeIndexChangeEventListener(this.updateMarkers);
@@ -96,7 +98,7 @@ window.Map = React.createClass({
   },
   render: function() {
     return (
-      <div className="map" ref='map'></div>
+      <div class="map" ref='map'></div>
     );
   }
 });

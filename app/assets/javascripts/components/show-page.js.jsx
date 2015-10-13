@@ -3,6 +3,7 @@ window.ShowPage = React.createClass({
     $.ajax({
       url: 'api' + this.props.location.pathname,
       dataType: 'json',
+      async: false,
       success: function (bench) {
         this.setState({ bench: bench });
       }.bind(this)
